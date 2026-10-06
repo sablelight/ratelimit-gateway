@@ -1,0 +1,63 @@
+# Go
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Test binary
+*.test
+
+# Output of go coverage
+*.coverprofile
+coverage.out
+coverage.html
+
+# Dependency directories
+vendor/
+
+# Go workspace
+go.work
+go.work.sum
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+*.log
+
+# Build output
+bin/
+dist/
+out/
+build/
+
+# Profiling
+*.pprof
+*.prof
+
+# Generated files
+zz_generated.*
+*.pb.go
+*.gen.go
+
+# Coverage
+cover.out
+coverage.xml
