@@ -1,0 +1,26 @@
+services:
+  gateway:
+    build: .
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      - RATEGATE_UPSTREAM=http://mock:8080
+      - RATEGATE_REDIS_ADDR=redis:6379
+      - RATEGATE_RATE=10
+      - RATEGATE_BURST=20
+      - RATEGATE_LISTEN=:8080
+      - RATEGATE_METRICS_LISTEN=:9090
+    depends_on:
+      - redis
+      - mock
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  mock:
+    image: kennethreitz/httpbin
+    ports:
+      - "8081:80"
