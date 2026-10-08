@@ -32,7 +32,8 @@ jobs:
       - name: Verify go.mod/go.sum
         run: |
           git diff --exit-code go.mod
-          git diff --exit-code go.sum
+          # zero-dependency modules have no go.sum — nothing to verify
+          if [ -f go.sum ]; then git diff --exit-code go.sum; fi
 
       - name: Vet
         run: go vet ./...
