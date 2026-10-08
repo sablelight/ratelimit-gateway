@@ -82,13 +82,39 @@ func (l *Limiter) Allow(ctx context.Context, key string) (bool, time.Duration, e
 		return false, 0, err
 	}
 
-	allowed, _ := strconv.ParseBool(res[0].(string))
-	retryAfterMs, _ := strconv.Atoi(res[2].(string))
+	allowed := redisNumber(res[0]) != 0
+	retryAfterMs := redisNumber(res[2])
 
 	if !allowed {
 		return false, time.Duration(retryAfterMs) * time.Millisecond, nil
 	}
 	return true, 0, nil
+}
+
+// redisNumber converts an element of a Lua script reply to an int64.
+// Redis answers Lua booleans with 0/1 integers and Lua numbers with either
+// an integer or a bulk string, so accept all of them instead of asserting
+// a single type (which panics on the reply Redis actually sends).
+func redisNumber(v any) int64 {
+	switch n := v.(type) {
+	case int64:
+		return n
+	case float64:
+		return int64(n)
+	case bool:
+		if n {
+			return 1
+		}
+		return 0
+	case string:
+		f, err := strconv.ParseFloat(n, 64)
+		if err != nil {
+			return 0
+		}
+		return int64(f)
+	default:
+		return 0
+	}
 }
 
 // Close closes the Redis client.
