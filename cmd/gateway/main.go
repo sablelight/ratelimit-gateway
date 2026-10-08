@@ -45,11 +45,15 @@ func main() {
 	metricsMux := http.NewServeMux()
 	metricsMux.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(gateway.GetMetrics())
+		if err := json.NewEncoder(w).Encode(gateway.GetMetrics()); err != nil {
+			log.Printf("metrics encode failed: %v", err)
+		}
 	})
 	metricsMux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		if _, err := w.Write([]byte("ok")); err != nil {
+			log.Printf("healthz write failed: %v", err)
+		}
 	})
 	metricsServer := &http.Server{
 		Addr:    metricsAddr.GetString(),
@@ -83,7 +87,11 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	mainServer.Shutdown(ctx)
-	metricsServer.Shutdown(ctx)
+	if err := mainServer.Shutdown(ctx); err != nil {
+		log.Printf("main server shutdown: %v", err)
+	}
+	if err := metricsServer.Shutdown(ctx); err != nil {
+		log.Printf("metrics server shutdown: %v", err)
+	}
 	log.Println("Stopped")
 }
